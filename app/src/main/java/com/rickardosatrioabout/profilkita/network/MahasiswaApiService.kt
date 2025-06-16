@@ -27,4 +27,8 @@ object MahasiswaApi {
     val service: OrangApiService by lazy {
         retrofit.create(OrangApiService::class.java)
     }
+
+    fun getMahasiswaUrl(gambar: String): String{
+        return gambar
+    }
 }
