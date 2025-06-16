@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -81,7 +82,6 @@ fun ListItem(mahasiswa: Mahasiswa) {
             .border(1.dp, Color.Gray),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Elemen pertama di dalam Box: Gambar
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(MahasiswaApi.getMahasiswaUrl(mahasiswa.gambar))
@@ -89,6 +89,7 @@ fun ListItem(mahasiswa: Mahasiswa) {
                 .build(),
             contentDescription = stringResource(R.string.gambar, mahasiswa.nama),
             contentScale = ContentScale.Crop,
+            placeholder = painterResource(id = R.drawable.loading_img),
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)

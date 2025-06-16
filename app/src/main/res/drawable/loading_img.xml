@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#cccccf"
+        android:pathData="M36.06,28.92L36.06,32.18"
+        android:strokeWidth="1"
+        android:strokeColor="#e7e7e7"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="#c8c8cc"
+        android:pathData="M39.45,29.88L37.82,32.71"
+        android:strokeWidth="1"
+        android:strokeColor="#cacaca"
+        android:strokeLineCap="round" />
+    <!-- Tambahkan semua <path> lainnya seperti yang kamu punya -->
+</vector>
