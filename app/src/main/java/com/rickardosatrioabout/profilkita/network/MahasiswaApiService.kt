@@ -28,6 +28,8 @@ object MahasiswaApi {
         retrofit.create(OrangApiService::class.java)
     }
 
+    enum class ApiStatus { LOADING, SUCCESS}
+
     fun getMahasiswaUrl(gambar: String): String{
         return gambar
     }

@@ -6,12 +6,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,12 +67,24 @@ fun ScreenContent(modifier: Modifier = Modifier){
     val viewModel: MainViewModel = viewModel()
     val data by viewModel.data
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier.padding(horizontal = 4.dp)
-    ) {
-        items(data) { mahasiswa ->
-            ListItem(mahasiswa = mahasiswa)
+    val status by viewModel.status.collectAsState()
+
+    when (status){
+            MahasiswaApi.ApiStatus.LOADING ->{
+        Box (
+            modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+        MahasiswaApi.ApiStatus.SUCCESS -> {
+            LazyVerticalGrid(
+                modifier = modifier.fillMaxSize().padding(4.dp),
+                columns = GridCells.Fixed(2),
+            ) {
+                items(data) {ListItem(mahasiswa = it)}
+            }
         }
     }
 }
