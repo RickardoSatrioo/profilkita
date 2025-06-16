@@ -90,6 +90,7 @@ fun ListItem(mahasiswa: Mahasiswa) {
             contentDescription = stringResource(R.string.gambar, mahasiswa.nama),
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.loading_img),
+            error = painterResource(id = R.drawable.baseline_broken_image_24),
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
