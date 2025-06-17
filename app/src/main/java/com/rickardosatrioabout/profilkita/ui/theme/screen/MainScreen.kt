@@ -3,6 +3,8 @@ package com.rickardosatrioabout.profilkita.ui.theme.screen
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
+import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -108,6 +111,7 @@ fun MainScreen(){
             ProfilDialog(
                 user = user,
                 onDismissRequest = { showDialog = false }) {
+                CoroutineScope(Dispatchers.IO).launch { signOut(context, dataStore) }
                 showDialog = false
             }
         }
@@ -125,7 +129,7 @@ private suspend fun signIn(context: Context, dataStore: UserDataStore){
         .build()
 
     try {
-        val credentialManager = androidx.credentials.CredentialManager.create(context)
+        val credentialManager = CredentialManager.create(context)
         val result = credentialManager.getCredential(context, request)
         handleSignIn(result, dataStore)
     } catch (e: GetCredentialException){
@@ -195,6 +199,18 @@ fun ScreenContent(modifier: Modifier = Modifier){
                 }
             }
         }
+    }
+}
+
+private suspend fun signOut(context: Context, dataStore: UserDataStore) {
+    try {
+        val credentialManager = CredentialManager.create(context)
+        credentialManager.clearCredentialState(
+            ClearCredentialStateRequest()
+        )
+        dataStore.saveData(User())
+    } catch (e: ClearCredentialException) {
+        Log.e("SIGN-IN", "Error: ${e.errorMessage}")
     }
 }
 
