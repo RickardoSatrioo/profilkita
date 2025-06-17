@@ -3,6 +3,9 @@ package com.rickardosatrioabout.profilkita.ui.theme.screen
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +71,7 @@ fun MainScreen(){
     val context = LocalContext.current
     val dataStore = UserDataStore(context)
     val user by dataStore.userFlow.collectAsState(User())
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -85,7 +89,7 @@ fun MainScreen(){
                             CoroutineScope(Dispatchers.IO).launch { signIn(context, dataStore) }
                         }
                         else{
-                            Log.d("SIGN-IN", "User: $user")
+                            showDialog = true
                         }
                     }) {
                         Icon(
@@ -99,6 +103,14 @@ fun MainScreen(){
         }
     ) { innerPadding ->
         ScreenContent(Modifier.padding(innerPadding))
+
+        if (showDialog) {
+            ProfilDialog(
+                user = user,
+                onDismissRequest = { showDialog = false }) {
+                showDialog = false
+            }
+        }
     }
 }
 
