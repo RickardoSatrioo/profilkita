@@ -7,4 +7,9 @@
     <string name="tutup">Tutup</string>
     <string name="logout">Logout</string>
     <string name="tambah_mahasiswa">Tambah mahasiswa</string>
+    <string name="nama">Nama</string>
+    <string name="kelas">Kelas</string>
+    <string name="suku">Suku</string>
+    <string name="batal">Batal</string>
+    <string name="simpan">Simpan</string>
 </resources>

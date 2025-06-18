@@ -64,6 +64,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.canhub.cropper.CropImage.CancelledResult.bitmap
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
@@ -88,9 +89,12 @@ fun MainScreen() {
     val user by dataStore.userFlow.collectAsState(User())
     val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
+    var showMahasiswaDialog by remember { mutableStateOf(false) }
 
-    val launcher = rememberLauncherForActivityResult(CropImageContract()) { result ->
-        getCroppedImage(context.contentResolver, result)
+    var bitmap: Bitmap? by remember { mutableStateOf(null) }
+    val launcher = rememberLauncherForActivityResult(CropImageContract()) {
+        bitmap = getCroppedImage(context.contentResolver, it)
+        if (bitmap != null) showMahasiswaDialog = true
     }
 
     Scaffold(
@@ -149,6 +153,17 @@ fun MainScreen() {
                 showDialog = false
             }
         }
+
+        if (showMahasiswaDialog) {
+            MahasiswaDialog(
+                bitmap = bitmap,
+                onDismissRequest = { showMahasiswaDialog = false }
+            ) { nama, kelas, suku ->
+                Log.d("TAMBAH", "$nama $kelas $suku ditambahkan.")
+                showMahasiswaDialog = false
+            }
+        }
+
     }
 }
 
