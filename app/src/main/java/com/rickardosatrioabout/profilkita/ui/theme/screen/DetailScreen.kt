@@ -8,10 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.rickardosatrioabout.profilkita.R
 import com.rickardosatrioabout.profilkita.model.User
 import com.rickardosatrioabout.profilkita.model.UserDataStore
 import com.rickardosatrioabout.profilkita.network.MahasiswaApi
@@ -19,7 +21,7 @@ import com.rickardosatrioabout.profilkita.network.MahasiswaApi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    id: String, // Terima ID mahasiswa
+    id: String,
     nama: String,
     kelas: String,
     suku: String,
@@ -28,7 +30,6 @@ fun DetailScreen(
 ) {
     val context = LocalContext.current
     val dataStore = UserDataStore(context)
-    // Ambil data user untuk mendapatkan token
     val user by dataStore.userFlow.collectAsState(initial = User())
 
     val viewModel: MainViewModel = viewModel()
@@ -39,15 +40,14 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detail Mahasiswa") },
+                title = { Text(stringResource(R.string.detail_mahasiswa)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.kembali))
                     }
                 },
                 actions = {
                     IconButton(onClick = {
-                        // Memanggil fungsi updateData dari ViewModel dengan data lengkap
                         viewModel.updateData(
                             token = user.token,
                             id = id,
@@ -57,7 +57,7 @@ fun DetailScreen(
                             onSuccess = { navController.popBackStack() }
                         )
                     }) {
-                        Icon(Icons.Filled.Save, contentDescription = "Simpan")
+                        Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.simpan))
                     }
                 }
             )
@@ -72,7 +72,7 @@ fun DetailScreen(
         ) {
             AsyncImage(
                 model = MahasiswaApi.getMahasiswaUrl(gambar),
-                contentDescription = "Foto Mahasiswa",
+                contentDescription = stringResource(R.string.foto_mahasiswa),
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
@@ -80,19 +80,19 @@ fun DetailScreen(
             OutlinedTextField(
                 value = newNama,
                 onValueChange = { newNama = it },
-                label = { Text("Nama") },
+                label = { Text(stringResource(R.string.nama)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = newKelas,
                 onValueChange = { newKelas = it },
-                label = { Text("Kelas") },
+                label = { Text(stringResource(R.string.kelas)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = newSuku,
                 onValueChange = { newSuku = it },
-                label = { Text("Suku") },
+                label = { Text(stringResource(R.string.suku)) },
                 modifier = Modifier.fillMaxWidth()
             )
         }

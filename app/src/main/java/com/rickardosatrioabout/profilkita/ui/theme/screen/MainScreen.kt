@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) { // Menerima NavController
+fun MainScreen(navController: NavHostController) {
     val context = LocalContext.current
     val dataStore = remember { UserDataStore(context) }
     val user by dataStore.userFlow.collectAsState(User())
@@ -121,7 +121,6 @@ fun MainScreen(navController: NavHostController) { // Menerima NavController
             }
         }
     ) { innerPadding ->
-        // Meneruskan NavController ke ScreenContent
         ScreenContent(viewModel, user.email, Modifier.padding(innerPadding), navController)
 
         if (showDialog) {
@@ -324,7 +323,6 @@ private fun getCroppedImage(resolver: ContentResolver, result: CropImageView.Cro
 @Composable
 fun MainScreenPreview() {
     ProfilkitaTheme {
-        // Menyediakan NavController dummy untuk preview
         MainScreen(navController = rememberNavController())
     }
 }

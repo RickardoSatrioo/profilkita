@@ -23,7 +23,6 @@ fun SetupNavGraph(navController: NavHostController = rememberNavController()) {
         composable(
             route = Screen.Detail.route,
             arguments = listOf(
-                // Tambahkan argumen untuk ID
                 navArgument("id") { type = NavType.StringType },
                 navArgument("nama") { type = NavType.StringType },
                 navArgument("kelas") { type = NavType.StringType },
@@ -31,7 +30,6 @@ fun SetupNavGraph(navController: NavHostController = rememberNavController()) {
                 navArgument("gambar") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            // Ambil ID dari argumen
             val id = backStackEntry.arguments?.getString("id") ?: ""
             val nama = backStackEntry.arguments?.getString("nama") ?: ""
             val kelas = backStackEntry.arguments?.getString("kelas") ?: ""
@@ -39,7 +37,6 @@ fun SetupNavGraph(navController: NavHostController = rememberNavController()) {
             val gambar = backStackEntry.arguments?.getString("gambar")?.replace("%2F", "/") ?: ""
 
             DetailScreen(
-                // Kirim ID ke DetailScreen
                 id = id,
                 nama = nama,
                 kelas = kelas,

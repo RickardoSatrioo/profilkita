@@ -17,19 +17,15 @@ import java.io.ByteArrayOutputStream
 
 class MainViewModel : ViewModel() {
 
-    // Properti ini dibutuhkan oleh MainScreen
     var data = mutableStateOf(emptyList<Mahasiswa>())
         private set
 
-    // Properti ini dibutuhkan oleh MainScreen
     var status = MutableStateFlow(MahasiswaApi.ApiStatus.LOADING)
         private set
 
-    // Properti ini dibutuhkan oleh MainScreen
     var errorMassage = mutableStateOf<String?>(null)
         private set
 
-    // Fungsi ini dibutuhkan oleh MainScreen
     fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = MahasiswaApi.ApiStatus.LOADING
@@ -43,7 +39,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    // Fungsi ini dibutuhkan oleh MainScreen
     fun saveData(userId: String, nama: String, kelas: String, suku: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -62,7 +57,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    // Fungsi ini dibutuhkan oleh DetailScreen
     fun updateData(
         token: String,
         id: String,
@@ -109,7 +103,6 @@ class MainViewModel : ViewModel() {
         return MultipartBody.Part.createFormData("image", "image.jpg", requestBody)
     }
 
-    // Fungsi ini dibutuhkan oleh MainScreen
     fun clearMessage() {
         errorMassage.value = null
     }
