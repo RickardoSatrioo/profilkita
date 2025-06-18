@@ -26,7 +26,6 @@ class MainViewModel : ViewModel() {
     var errorMassage = mutableStateOf<String?>(null)
         private set
 
-
     fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = MahasiswaApi.ApiStatus.LOADING
@@ -58,9 +57,33 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Fungsi updateData ditempatkan di dalam ViewModel
+    fun updateData(nama: String, kelas: String, suku: String, onSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // CATATAN: API Anda saat ini hanya memiliki endpoint untuk POST (membuat baru),
+                // bukan PUT/PATCH (memperbarui). Memanggil postMahasiswa di sini akan
+                // membuat data baru, bukan mengubah data lama.
+                // Untuk "update" yang sesungguhnya, Anda perlu endpoint API baru.
+                // Kode di bawah ini hanya sebagai contoh dan tidak akan berfungsi
+                // tanpa endpoint update dan cara menangani gambar.
+
+                Log.d("MainViewModel", "Update dipanggil. Nama: $nama, Kelas: $kelas, Suku: $suku")
+                errorMassage.value = "Fitur update belum didukung oleh API."
+
+                // Panggil onSuccess agar UI kembali ke halaman sebelumnya
+                launch(Dispatchers.Main) {
+                    onSuccess()
+                }
+
+            } catch (e: Exception) {
+                errorMassage.value = "Update gagal: ${e.message}"
+            }
+        }
+    }
+
     private fun Bitmap.toMultipartBody(): MultipartBody.Part {
         val maxKb = 500
-
         var bmp = this
         var stream = ByteArrayOutputStream()
         var quality = 80
@@ -70,14 +93,9 @@ class MainViewModel : ViewModel() {
             quality -= 10
             bmp.compress(Bitmap.CompressFormat.JPEG, quality, stream)
         }
-
         val byteArray = stream.toByteArray()
-        val requestBody = byteArray.toRequestBody(
-            "image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
-
-        return MultipartBody.Part.createFormData(
-            "image", "image.jpg", requestBody
-        )
+        val requestBody = byteArray.toRequestBody("image/jpeg".toMediaTypeOrNull(), 0, byteArray.size)
+        return MultipartBody.Part.createFormData("image", "image.jpg", requestBody)
     }
 
     fun clearMessage() {

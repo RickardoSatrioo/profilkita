@@ -12,38 +12,15 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,14 +33,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
+import androidx.credentials.*
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.canhub.cropper.CropImageContract
@@ -78,13 +53,14 @@ import com.rickardosatrioabout.profilkita.R
 import com.rickardosatrioabout.profilkita.model.Mahasiswa
 import com.rickardosatrioabout.profilkita.model.User
 import com.rickardosatrioabout.profilkita.model.UserDataStore
+import com.rickardosatrioabout.profilkita.navigation.Screen
 import com.rickardosatrioabout.profilkita.network.MahasiswaApi
 import com.rickardosatrioabout.profilkita.ui.theme.ProfilkitaTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) { // Menerima NavController
     val context = LocalContext.current
     val dataStore = remember { UserDataStore(context) }
     val user by dataStore.userFlow.collectAsState(User())
@@ -105,9 +81,7 @@ fun MainScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.app_name))
-                },
+                title = { Text(text = stringResource(id = R.string.app_name)) },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
@@ -147,7 +121,8 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        ScreenContent(viewModel, user.email, Modifier.padding(innerPadding))
+        // Meneruskan NavController ke ScreenContent
+        ScreenContent(viewModel, user.email, Modifier.padding(innerPadding), navController)
 
         if (showDialog) {
             ProfilDialog(
@@ -170,21 +145,27 @@ fun MainScreen() {
             }
         }
 
-        if (errorMessage != null){
+        if (errorMessage != null) {
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
             viewModel.clearMessage()
         }
-
     }
 }
 
 @Composable
-fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier = Modifier) {
+fun ScreenContent(
+    viewModel: MainViewModel,
+    userId: String,
+    modifier: Modifier = Modifier,
+    navController: NavHostController // Menerima NavController
+) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
 
     LaunchedEffect(userId) {
-        viewModel.retrieveData(userId)
+        if (userId.isNotEmpty()) {
+            viewModel.retrieveData("Bearer $userId")
+        }
     }
 
     when (status) {
@@ -204,7 +185,17 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier =
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(bottom = 80.dp)
             ) {
-                items(data) { ListItem(mahasiswa = it) }
+                items(data, key = { it.id }) {
+                    Box(modifier = Modifier.clickable {
+                        navController.navigate(
+                            Screen.Detail.createRoute(
+                                it.nama, it.kelas, it.suku, it.gambar
+                            )
+                        )
+                    }) {
+                        ListItem(mahasiswa = it)
+                    }
+                }
             }
         }
         MahasiswaApi.ApiStatus.FAILED -> {
@@ -215,7 +206,11 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier =
             ) {
                 Text(text = stringResource(id = R.string.erorr))
                 Button(
-                    onClick = { viewModel.retrieveData(userId) },
+                    onClick = {
+                        if (userId.isNotEmpty()) {
+                            viewModel.retrieveData("Bearer $userId")
+                        }
+                    },
                     modifier = Modifier.padding(16.dp),
                     contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
                 ) {
@@ -247,30 +242,15 @@ fun ListItem(mahasiswa: Mahasiswa) {
                 .fillMaxWidth()
                 .aspectRatio(1f)
         )
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Black.copy(alpha = 0.5f))
                 .padding(4.dp)
         ) {
-            Text(
-                text = mahasiswa.nama,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Text(
-                text = mahasiswa.kelas,
-                fontStyle = FontStyle.Italic,
-                fontSize = 14.sp,
-                color = Color.White
-            )
-            Text(
-                text = mahasiswa.suku,
-                fontStyle = FontStyle.Italic,
-                fontSize = 14.sp,
-                color = Color.White
-            )
+            Text(text = mahasiswa.nama, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(text = mahasiswa.kelas, fontStyle = FontStyle.Italic, fontSize = 14.sp, color = Color.White)
+            Text(text = mahasiswa.suku, fontStyle = FontStyle.Italic, fontSize = 14.sp, color = Color.White)
         }
     }
 }
@@ -280,11 +260,9 @@ private suspend fun signIn(context: Context, dataStore: UserDataStore) {
         .setFilterByAuthorizedAccounts(false)
         .setServerClientId(BuildConfig.API_KEY)
         .build()
-
     val request: GetCredentialRequest = GetCredentialRequest.Builder()
         .addCredentialOption(googleIdOption)
         .build()
-
     try {
         val credentialManager = CredentialManager.create(context)
         val result = credentialManager.getCredential(context, request)
@@ -296,9 +274,7 @@ private suspend fun signIn(context: Context, dataStore: UserDataStore) {
 
 private suspend fun handleSignIn(result: GetCredentialResponse, dataStore: UserDataStore) {
     val credential = result.credential
-    if (credential is CustomCredential &&
-        credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-    ) {
+    if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
         try {
             val googleIdToken = GoogleIdTokenCredential.createFrom(credential.data)
             val nama = googleIdToken.displayName ?: ""
@@ -317,26 +293,19 @@ private suspend fun handleSignIn(result: GetCredentialResponse, dataStore: UserD
 private suspend fun signOut(context: Context, dataStore: UserDataStore) {
     try {
         val credentialManager = CredentialManager.create(context)
-        credentialManager.clearCredentialState(
-            ClearCredentialStateRequest()
-        )
+        credentialManager.clearCredentialState(ClearCredentialStateRequest())
         dataStore.saveData(User())
     } catch (e: ClearCredentialException) {
         Log.e("SIGN-IN", "Error: ${e.errorMessage}")
     }
 }
 
-private fun getCroppedImage(
-    resolver: ContentResolver,
-    result: CropImageView.CropResult
-): Bitmap? {
+private fun getCroppedImage(resolver: ContentResolver, result: CropImageView.CropResult): Bitmap? {
     if (!result.isSuccessful) {
         Log.e("IMAGE", "Error: ${result.error?.message}")
         return null
     }
-
     val uri = result.uriContent ?: return null
-
     return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
         @Suppress("DEPRECATION")
         MediaStore.Images.Media.getBitmap(resolver, uri)
@@ -351,6 +320,7 @@ private fun getCroppedImage(
 @Composable
 fun MainScreenPreview() {
     ProfilkitaTheme {
-        MainScreen()
+        // Menyediakan NavController dummy untuk preview
+        MainScreen(navController = rememberNavController())
     }
 }

@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.rickardosatrioabout.profilkita.navigation.SetupNavGraph
 import com.rickardosatrioabout.profilkita.ui.theme.ProfilkitaTheme
-import com.rickardosatrioabout.profilkita.ui.theme.screen.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProfilkitaTheme {
-                MainScreen()
+                SetupNavGraph()
             }
         }
     }
