@@ -26,15 +26,12 @@ class MainViewModel : ViewModel() {
     var errorMassage = mutableStateOf<String?>(null)
         private set
 
-    init {
-        retrieveData()
-    }
 
-    fun retrieveData() {
+    fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = MahasiswaApi.ApiStatus.LOADING
             try {
-                data.value = MahasiswaApi.service.getMahasiswa()
+                data.value = MahasiswaApi.service.getMahasiswa(userId)
                 status.value = MahasiswaApi.ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
@@ -53,7 +50,7 @@ class MainViewModel : ViewModel() {
                     suku.toRequestBody("text/plain".toMediaTypeOrNull()),
                     bitmap.toMultipartBody()
                 )
-                retrieveData()
+                retrieveData(userId)
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
                 errorMassage.value = "Error: ${e.message}"

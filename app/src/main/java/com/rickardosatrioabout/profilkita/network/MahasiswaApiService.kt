@@ -39,7 +39,10 @@ private val retrofit = Retrofit.Builder()
 
 interface OrangApiService {
     @GET("mahasiswa")
-    suspend fun getMahasiswa(): List<Mahasiswa>
+
+    suspend fun getMahasiswa(
+        @Header("Authorization") userId: String
+    ): List<Mahasiswa>
 
     @Multipart
     @POST("mahasiswa")
