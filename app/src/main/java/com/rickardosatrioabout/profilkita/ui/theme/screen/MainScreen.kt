@@ -8,6 +8,7 @@ import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,7 +65,6 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.canhub.cropper.CropImage.CancelledResult.bitmap
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
@@ -87,6 +87,10 @@ fun MainScreen() {
     val context = LocalContext.current
     val dataStore = remember { UserDataStore(context) }
     val user by dataStore.userFlow.collectAsState(User())
+
+    val viewModel: MainViewModel = viewModel()
+    val errorMessage by viewModel.errorMassage
+
     val scope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     var showMahasiswaDialog by remember { mutableStateOf(false) }
@@ -142,7 +146,7 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        ScreenContent(Modifier.padding(innerPadding))
+        ScreenContent(viewModel, Modifier.padding(innerPadding))
 
         if (showDialog) {
             ProfilDialog(
@@ -159,17 +163,22 @@ fun MainScreen() {
                 bitmap = bitmap,
                 onDismissRequest = { showMahasiswaDialog = false }
             ) { nama, kelas, suku ->
-                Log.d("TAMBAH", "$nama $kelas $suku ditambahkan.")
+                val authToken = "Bearer ${user.token}"
+                viewModel.saveData(authToken, nama, kelas, suku, bitmap!!)
                 showMahasiswaDialog = false
             }
+        }
+
+        if (errorMessage != null){
+            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+            viewModel.clearMessage()
         }
 
     }
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier = Modifier) {
-    val viewModel: MainViewModel = viewModel()
+fun ScreenContent(viewModel: MainViewModel, modifier: Modifier = Modifier) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
 
@@ -252,7 +261,7 @@ fun ListItem(mahasiswa: Mahasiswa) {
                 color = Color.White
             )
             Text(
-                text = mahasiswa.ras,
+                text = mahasiswa.suku,
                 fontStyle = FontStyle.Italic,
                 fontSize = 14.sp,
                 color = Color.White
@@ -290,7 +299,8 @@ private suspend fun handleSignIn(result: GetCredentialResponse, dataStore: UserD
             val nama = googleIdToken.displayName ?: ""
             val email = googleIdToken.id
             val photoUrl = googleIdToken.profilePictureUri.toString()
-            dataStore.saveData(User(nama, email, photoUrl))
+            val token = googleIdToken.idToken
+            dataStore.saveData(User(nama, email, photoUrl, token))
         } catch (e: GoogleIdTokenParsingException) {
             Log.e("SIGN-IN", "Error: ${e.message}")
         }

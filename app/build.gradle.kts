@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.konan.properties.Properties
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.android.image.cropper)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -75,8 +76,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.coil.compose)
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
 }
