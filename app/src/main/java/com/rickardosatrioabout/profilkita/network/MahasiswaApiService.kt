@@ -14,7 +14,9 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 private const val BASE_URL = "https://api-mobpro-v2.kakashispiritnews.my.id/"
 
@@ -39,7 +41,6 @@ private val retrofit = Retrofit.Builder()
 
 interface OrangApiService {
     @GET("mahasiswa")
-
     suspend fun getMahasiswa(
         @Header("Authorization") userId: String
     ): List<Mahasiswa>
@@ -53,6 +54,17 @@ interface OrangApiService {
         @Part("suku") suku : RequestBody,
         @Part image: MultipartBody.Part
     ): Mahasiswa
+
+    // FUNGSI BARU UNTUK UPDATE DATA
+    @Multipart
+    @PUT("mahasiswa/{mahasiswaId}")
+    suspend fun updateMahasiswa(
+        @Header("Authorization") userId: String,
+        @Path("mahasiswaId") id: String,
+        @Part("nama") nama: RequestBody,
+        @Part("kelas") kelas: RequestBody,
+        @Part("suku") suku: RequestBody
+    ): OpStatus
 }
 
 object MahasiswaApi {

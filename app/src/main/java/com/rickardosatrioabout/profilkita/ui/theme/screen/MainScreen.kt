@@ -157,7 +157,7 @@ fun ScreenContent(
     viewModel: MainViewModel,
     userId: String,
     modifier: Modifier = Modifier,
-    navController: NavHostController // Menerima NavController
+    navController: NavHostController
 ) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
@@ -189,7 +189,11 @@ fun ScreenContent(
                     Box(modifier = Modifier.clickable {
                         navController.navigate(
                             Screen.Detail.createRoute(
-                                it.nama, it.kelas, it.suku, it.gambar
+                                id = it.id,
+                                nama = it.nama,
+                                kelas = it.kelas,
+                                suku = it.suku,
+                                gambar = it.gambar
                             )
                         )
                     }) {

@@ -17,15 +17,19 @@ import java.io.ByteArrayOutputStream
 
 class MainViewModel : ViewModel() {
 
+    // Properti ini dibutuhkan oleh MainScreen
     var data = mutableStateOf(emptyList<Mahasiswa>())
         private set
 
+    // Properti ini dibutuhkan oleh MainScreen
     var status = MutableStateFlow(MahasiswaApi.ApiStatus.LOADING)
         private set
 
+    // Properti ini dibutuhkan oleh MainScreen
     var errorMassage = mutableStateOf<String?>(null)
         private set
 
+    // Fungsi ini dibutuhkan oleh MainScreen
     fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = MahasiswaApi.ApiStatus.LOADING
@@ -39,6 +43,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    // Fungsi ini dibutuhkan oleh MainScreen
     fun saveData(userId: String, nama: String, kelas: String, suku: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -57,27 +62,33 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    // Fungsi updateData ditempatkan di dalam ViewModel
-    fun updateData(nama: String, kelas: String, suku: String, onSuccess: () -> Unit) {
+    // Fungsi ini dibutuhkan oleh DetailScreen
+    fun updateData(
+        token: String,
+        id: String,
+        nama: String,
+        kelas: String,
+        suku: String,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                // CATATAN: API Anda saat ini hanya memiliki endpoint untuk POST (membuat baru),
-                // bukan PUT/PATCH (memperbarui). Memanggil postMahasiswa di sini akan
-                // membuat data baru, bukan mengubah data lama.
-                // Untuk "update" yang sesungguhnya, Anda perlu endpoint API baru.
-                // Kode di bawah ini hanya sebagai contoh dan tidak akan berfungsi
-                // tanpa endpoint update dan cara menangani gambar.
+                val authToken = "Bearer $token"
+                MahasiswaApi.service.updateMahasiswa(
+                    userId = authToken,
+                    id = id,
+                    nama = nama.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    kelas = kelas.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    suku = suku.toRequestBody("text/plain".toMediaTypeOrNull())
+                )
 
-                Log.d("MainViewModel", "Update dipanggil. Nama: $nama, Kelas: $kelas, Suku: $suku")
-                errorMassage.value = "Fitur update belum didukung oleh API."
-
-                // Panggil onSuccess agar UI kembali ke halaman sebelumnya
                 launch(Dispatchers.Main) {
                     onSuccess()
                 }
 
             } catch (e: Exception) {
-                errorMassage.value = "Update gagal: ${e.message}"
+                Log.d("MainViewModel", "Update Failure: ${e.message}")
+                errorMassage.value = "Update Error: ${e.message}"
             }
         }
     }
@@ -98,6 +109,7 @@ class MainViewModel : ViewModel() {
         return MultipartBody.Part.createFormData("image", "image.jpg", requestBody)
     }
 
+    // Fungsi ini dibutuhkan oleh MainScreen
     fun clearMessage() {
         errorMassage.value = null
     }
